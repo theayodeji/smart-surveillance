@@ -1,33 +1,36 @@
 import React, { useState } from "react";
+import axios from "axios";
 
-const LoginPage = () => {
-  const [email, setEmail] = useState("");
+const LoginPage = ({ onLogin }) => {
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("user"); // Default to regular user
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    // Simulating API call
-    setTimeout(() => {
-      // This is where you would typically make an API call to your backend
-      // For demo purposes, we're using simple validation
-      if (email && password) {
-        console.log("Login attempted as:", role);
-        console.log("Email:", email);
-        console.log("Password:", password);
-        alert(
-          `Login successful as ${role}! This would redirect to the ${role} dashboard.`
-        );
-      } else {
-        setError("Please fill in all fields");
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/login', {
+        username,
+        password
+      });
+
+      // Store the token
+      localStorage.setItem('token', response.data.token);
+      
+      // Call the onLogin callback to update the auth state
+      if (onLogin) {
+        onLogin();
       }
+    } catch (error) {
+      setError(error.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -48,21 +51,21 @@ const LoginPage = () => {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="email"
+                htmlFor="username"
                 className="block text-sm font-medium text-gray-700"
               >
-                Email address
+                Username
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400"
-                placeholder="Email"
+                placeholder="Username"
               />
             </div>
 
@@ -77,7 +80,7 @@ const LoginPage = () => {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="curre nt-password"
+                autoComplete="current-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -143,20 +146,20 @@ const LoginPage = () => {
               </label>
             </div>
 
-            <div className="text-sm">
+            {/* <div className="text-sm">
               <a
                 href="#"
                 className="font-medium text-green-700 hover:text-green-600"
               >
                 Forgot your password?
               </a>
-            </div>
+            </div> */}
           </div>
 
           <div>
             <button
               type="submit"
-              disabled={loading || email === '' || password === ''} 
+              disabled={loading || username === '' || password === ''} 
               className={`cursor-pointer flex justify-center w-full px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                 loading
                   ? "bg-gray-400 cursor-not-allowed"
@@ -168,7 +171,7 @@ const LoginPage = () => {
           </div>
         </form>
 
-        <div className="text-center text-sm mt-4">
+        {/* <div className="text-center text-sm mt-4">
           <p className="text-gray-600">
             Don't have an account?{" "}
             <a
@@ -178,7 +181,7 @@ const LoginPage = () => {
               Sign up
             </a>
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );

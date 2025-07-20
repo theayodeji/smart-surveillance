@@ -8,29 +8,29 @@ import { authenticateUser } from "../middleware/middleware.js";
 const router = express.Router()
 
 // 📌 User Signup
-router.post('/register', authenticateUser, async (req, res) => {
+router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { username, password, role } = req.body;
 
     // Hash Password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Default role to "user" if not provided
     const newUser = await User.create({
-      name,
-      email,
+      username,
       password: hashedPassword,
-      role: role || "user",
+      role: role,
     });
 
     res.json({ message: "User registered successfully", user: newUser });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: error.message });
   }
 });
 
 // 📌 User Login
-router.post("/login",authenticateUser,  async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -42,7 +42,7 @@ router.post("/login",authenticateUser,  async (req, res) => {
     // Generate JWT Token
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "your-secret-key",
       { expiresIn: "1d" }
     );
 
@@ -55,6 +55,7 @@ router.post("/login",authenticateUser,  async (req, res) => {
 
     res.json({ message: "Login successful", token });
   } catch (error) {
+    console.log(error)  
     res.status(500).json({ error: error.message });
   }
 });

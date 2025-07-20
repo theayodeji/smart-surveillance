@@ -8,6 +8,8 @@ const router = express.Router();
 // 📌 **Route: Upload Base64 Image**
 router.post("/upload", async (req, res) => {
 
+  console.log("Motion was detected on your property! \nProcessing...");
+
   try {
     const { image } = req.body; // Expecting Base64 string
 
@@ -39,13 +41,54 @@ router.post("/upload", async (req, res) => {
 });
 
 // 📌 **Route: Fetch Events**
+
+// 📌 **Route: Fetch All Events**
 router.get("/logs", async (req, res) => {
   try {
     const logs = await Event.find().sort({ timestamp: -1 });
-    res.json(logs);
+    res.status(200).json(logs);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// 📌 **Route: Fetch Single Event by ID**
+router.get("/logs/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    res.status(200).json(event);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 export default router;
+
+// 📌 **Route: Delete Event by ID**
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const event = await Event.findById(id);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+
+    // Optionally, delete the image from Cloudinary
+    // Extract public_id from imageUrl if you want to delete from Cloudinary
+    // Example assumes imageUrl format: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<public_id>.jpg
+    // Uncomment below if you want to delete from Cloudinary as well
+    const publicId = event.imageUrl.split('/').slice(-1)[0].split('.')[0];
+    await cloudinary.uploader.destroy(`esp_events/${publicId}`);
+
+    await event.deleteOne();
+    res.json({ message: "Event deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error.message });
+  }
+});
