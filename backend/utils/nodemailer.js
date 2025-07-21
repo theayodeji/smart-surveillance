@@ -30,7 +30,7 @@ export const sendAlertEmail = async (imageUrl) => {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log('📧 Email sent:', info.response);
+        console.log('📧 Alert Email sent:', info.response);
     } catch (error) {
         console.error('❌ Email sending failed:', error.message);
     }

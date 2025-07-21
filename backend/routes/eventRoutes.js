@@ -80,8 +80,6 @@ router.delete("/:id", async (req, res) => {
 
     // Optionally, delete the image from Cloudinary
     // Extract public_id from imageUrl if you want to delete from Cloudinary
-    // Example assumes imageUrl format: https://res.cloudinary.com/<cloud_name>/image/upload/v<version>/<public_id>.jpg
-    // Uncomment below if you want to delete from Cloudinary as well
     const publicId = event.imageUrl.split('/').slice(-1)[0].split('.')[0];
     await cloudinary.uploader.destroy(`esp_events/${publicId}`);
 
