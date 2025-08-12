@@ -74,10 +74,10 @@ const Dashboard = ({ onLogout }) => {
         setSelectedEvent(null);
       }
       
-      // If there was an active search, update filtered logs too
-      if (searchDateTime) {
-        handleSearch();
-      }
+      // // If there was an active search, update filtered logs too
+      // if (searchDateTime) {
+      //   handleSearch();
+      // }
     } catch (err) {
       alert(err.message);
     }
@@ -125,17 +125,6 @@ const Dashboard = ({ onLogout }) => {
         if (logTimeInMinutes < startTimeInMinutes || logTimeInMinutes > endTimeInMinutes) {
           return false;
         }
-      }
-      
-      // Object type filter
-      if (filters.showOnly !== 'all') {
-        const hasPeople = log.detectedObjects?.some(obj => obj.class === 'person');
-        const hasVehicles = log.detectedObjects?.some(obj => 
-          ['car', 'truck', 'bus', 'motorcycle'].includes(obj.class)
-        );
-        
-        if (filters.showOnly === 'withPeople' && !hasPeople) return false;
-        if (filters.showOnly === 'withVehicles' && !hasVehicles) return false;
       }
       
       return true;

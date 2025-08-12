@@ -89,7 +89,7 @@ const LoginPage = ({ onLogin }) => {
               />
             </div>
 
-            <div>
+            {/* <div>
               <label className="block text-sm font-medium text-gray-700">
                 Login as
               </label>
@@ -127,7 +127,7 @@ const LoginPage = ({ onLogin }) => {
                   </label>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="flex items-center justify-between">
