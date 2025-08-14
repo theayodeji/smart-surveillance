@@ -12,6 +12,7 @@ router.post("/upload", async (req, res) => {
   console.log("Motion was detected on your property! \nProcessing...");
   const adminUser = await User.findOne({ username: "admin" });
   const alertEmail = adminUser?.alertEmail || adminUser?.email;
+  const isEmailAlertEnabled = adminUser?.emailAlerts;
 
   try {
     const { image } = req.body; // Expecting Base64 string
@@ -31,7 +32,9 @@ router.post("/upload", async (req, res) => {
       imageUrl: uploadResponse.secure_url,
       timestamp: new Date()
     });
-    await sendAlertEmail(uploadResponse.secure_url, alertEmail);
+    if (isEmailAlertEnabled) {
+      await sendAlertEmail(uploadResponse.secure_url, alertEmail);
+    }
 
     res.json({
       message: "Event logged successfully!",
