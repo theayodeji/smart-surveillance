@@ -181,6 +181,7 @@ npm run dev
 
 **Events**
 - `GET /api/events/logs` — Get all event logs
+- `POST /api/events/upload` — Upload a new image and create a new event
 - `GET /api/events/logs/:id` — Get a single event by ID
 - `DELETE /api/events/:id` — Delete an event
 
