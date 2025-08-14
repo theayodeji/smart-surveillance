@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const LoginPage = ({ onLogin }) => {
-  const [username, setUsername] = useState("");
+  const [loginId, setLoginId] = useState(""); // email or username
   const [password, setPassword] = useState("");
   // const [role, setRole] = useState("user"); // Default to regular user
   const [error, setError] = useState("");
@@ -17,8 +17,10 @@ const LoginPage = ({ onLogin }) => {
 
     try {
       const response = await axios.post(API_URL + '/api/auth/login', {
-        username,
-        password
+        // Send both so backend can match by either
+        username: loginId,
+        email: loginId,
+        password,
       });
 
       // Store the token
@@ -54,21 +56,21 @@ const LoginPage = ({ onLogin }) => {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="username"
+                htmlFor="loginId"
                 className="block text-sm font-medium text-gray-700"
               >
-                Username
+                Email or Username
               </label>
               <input
-                id="username"
-                name="username"
+                id="loginId"
+                name="loginId"
                 type="text"
                 autoComplete="username"
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={loginId}
+                onChange={(e) => setLoginId(e.target.value)}
                 className="block w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-400 focus:border-green-400"
-                placeholder="Username"
+                placeholder="Email or Username"
               />
             </div>
 
@@ -162,7 +164,7 @@ const LoginPage = ({ onLogin }) => {
           <div>
             <button
               type="submit"
-              disabled={loading || username === '' || password === ''} 
+              disabled={loading || loginId === '' || password === ''} 
               className={`cursor-pointer flex justify-center w-full px-4 py-2 text-sm font-medium text-white border border-transparent rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                 loading
                   ? "bg-gray-400 cursor-not-allowed"

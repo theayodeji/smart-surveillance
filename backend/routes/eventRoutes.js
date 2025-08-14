@@ -73,7 +73,45 @@ router.get("/logs/:id", async (req, res) => {
   }
 });
 
+// 📌 **Route: Bulk Delete Events**
+router.delete("/bulk", async (req, res) => {
+  try {
+      const { ids } = req.body;
+      
+      if (!Array.isArray(ids) || ids.length === 0) {
+          return res.status(400).json({ error: "An array of event IDs is required" });
+      }
 
+      // First, get the events to delete so we can clean up Cloudinary
+      const eventsToDelete = await Event.find({ _id: { $in: ids } });
+      
+      if (eventsToDelete.length === 0) {
+          return res.status(404).json({ error: "No events found to delete" });
+      }
+
+      // Delete images from Cloudinary
+      for (const event of eventsToDelete) {
+          const publicId = event.imageUrl.split('/').slice(-1)[0].split('.')[0];
+          try {
+              await cloudinary.uploader.destroy(`esp_events/${publicId}`);
+          } catch (error) {
+              console.error('Error deleting image from Cloudinary:', error);
+              // Continue with deletion even if Cloudinary deletion fails
+          }
+      }
+
+      // Delete events from database
+      const result = await Event.deleteMany({ _id: { $in: ids } });
+
+      res.json({ 
+          message: `Successfully deleted ${result.deletedCount} events`,
+          deletedCount: result.deletedCount
+      });
+  } catch (error) {
+      console.error('Error deleting events:', error);
+      res.status(500).json({ error: "Failed to delete events" });
+  }
+});
 
 // 📌 **Route: Delete Event by ID**
 router.delete("/:id", async (req, res) => {
@@ -96,4 +134,6 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+
 export default router;

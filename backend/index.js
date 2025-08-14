@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import eventRoutes from './routes/eventRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import cookieParser from 'cookie-parser';
 import authRoutes from "./routes/authRoutes.js"
 
@@ -26,7 +27,8 @@ mongoose.connect(process.env.MONGO_URI)
 
 // Routes
 app.use('/api/auth', authRoutes); 
-app.use('/api/events', eventRoutes); 
+app.use('/api/events', eventRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/', (req, res) => {
     res.send('Welcome to the Event Management API');

@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 // import Verification from "./pages/Verification";
 import Dashboard from "./pages/Dashboard";
+import Users from "./pages/Users";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import AuthRoute from "./components/auth/AuthRoute";
 
@@ -44,6 +45,7 @@ function App() {
         {/* Protected routes - only accessible when authenticated */}
         <Route element={<ProtectedRoute isAuthenticated={isAuthenticated} redirectPath="/auth/login" />}>
           <Route path="/" element={<Dashboard onLogout={() => setIsAuthenticated(false)} />} />
+          <Route path="/users" element={<Users />} />
           {/* <Route path="/settings" element={<Settings />} /> */}
         </Route>
 

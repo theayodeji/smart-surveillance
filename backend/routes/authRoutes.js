@@ -2,13 +2,13 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import express from 'express';
-import { authenticateUser } from "../middleware/middleware.js";
+import { authenticateUser, isAdmin } from "../middleware/middleware.js";
 
 
 const router = express.Router()
 
 // 📌 User Signup
-router.post('/register', async (req, res) => {
+router.post('/register',authenticateUser, isAdmin, async (req, res) => {
   try {
     const { username, password, role } = req.body;
 
@@ -32,11 +32,28 @@ router.post('/register', async (req, res) => {
 // 📌 User Login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const { email, username, password } = req.body;
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ error: "Invalid credentials" });
+    const login = (email || username || '').trim();
+    if (!login || !password) {
+      return res.status(400).json({ error: 'Email/username and password are required' });
+    }
+
+    // Find user by either email or username using a single identifier
+    const user = await User.findOne({
+      $or: [
+        { email: login },
+        { username: login }
+      ]
+    });
+
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Generate JWT Token
