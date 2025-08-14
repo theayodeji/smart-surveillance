@@ -1,0 +1,2 @@
+# Handle client-side routing, all requests to /app/* will be redirected to index.html
+/*    /index.html   200
