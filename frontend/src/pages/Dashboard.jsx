@@ -255,7 +255,7 @@ const Dashboard = ({ onLogout }) => {
       setShowMobileModal(true);
     }
     try {
-      const res = await fetch(`http://localhost:5000/api/events/logs/${id}`);
+      const res = await fetch(`${API_URL}/api/events/logs/${id}`);
       if (!res.ok) throw new Error("Failed to fetch event details");
       const data = await res.json();
       setSelectedEvent(data);
