@@ -13,11 +13,11 @@ const transporter = nodemailer.createTransport({
 });
 
 // 📌 Function to send an alert email
-export const sendAlertEmail = async (imageUrl) => {
+export const sendAlertEmail = async (imageUrl, alertEmail) => {
     try {
         const mailOptions = {
             from: process.env.EMAIL_USER,
-            to: process.env.ALERT_EMAIL, // The recipient's email address
+            to: alertEmail, // The recipient's email address
             subject: '🚨 Motion Detected - Surveillance System Alert',
             html: `
                 <h2>Motion Detected!</h2>

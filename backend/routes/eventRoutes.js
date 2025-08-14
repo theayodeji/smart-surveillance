@@ -2,6 +2,7 @@ import express from "express";
 import cloudinary from "../config/cloudinary.js";
 import Event from "../models/Event.js";
 import { sendAlertEmail } from "../utils/nodemailer.js";
+import User from "../models/User.js";
 
 const router = express.Router();
 
@@ -9,6 +10,8 @@ const router = express.Router();
 router.post("/upload", async (req, res) => {
 
   console.log("Motion was detected on your property! \nProcessing...");
+  const adminUser = await User.findOne({ username: "admin" });
+  const alertEmail = adminUser?.alertEmail || adminUser?.email;
 
   try {
     const { image } = req.body; // Expecting Base64 string
@@ -28,7 +31,7 @@ router.post("/upload", async (req, res) => {
       imageUrl: uploadResponse.secure_url,
       timestamp: new Date()
     });
-    await sendAlertEmail(uploadResponse.secure_url);
+    await sendAlertEmail(uploadResponse.secure_url, alertEmail);
 
     res.json({
       message: "Event logged successfully!",
@@ -67,7 +70,7 @@ router.get("/logs/:id", async (req, res) => {
   }
 });
 
-export default router;
+
 
 // 📌 **Route: Delete Event by ID**
 router.delete("/:id", async (req, res) => {
@@ -90,3 +93,4 @@ router.delete("/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+export default router;

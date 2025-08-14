@@ -4,9 +4,11 @@ import axios from "axios";
 const LoginPage = ({ onLogin }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user"); // Default to regular user
+  // const [role, setRole] = useState("user"); // Default to regular user
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,13 +16,14 @@ const LoginPage = ({ onLogin }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', {
+      const response = await axios.post(API_URL + '/api/auth/login', {
         username,
         password
       });
 
       // Store the token
       localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
       
       // Call the onLogin callback to update the auth state
       if (onLogin) {

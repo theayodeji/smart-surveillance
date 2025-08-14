@@ -3,10 +3,10 @@ import axios from "axios";
 
 const SignupPage = ({ onSignup }) => {
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,24 +14,32 @@ const SignupPage = ({ onSignup }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
-        username,
-        password
-      });
+      const response = await axios.post(
+        API_URL + "/api/auth/register",
+        {
+          username,
+          password,
+        }
+      );
 
       // Store the token if available
       if (response.data.token) {
-        localStorage.setItem('token', response.data.token);
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", response.data.user);
+
         // Call the onSignup callback to update the auth state
         if (onSignup) {
           onSignup();
         }
       } else {
         // If no token is returned, redirect to login
-        window.location.href = '/auth/login';
+        window.location.href = "/auth/login";
       }
     } catch (error) {
-      setError(error.response?.data?.message || 'Registration failed. Please try again.');
+      setError(
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -54,7 +62,10 @@ const SignupPage = ({ onSignup }) => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Username
               </label>
               <input
@@ -67,7 +78,10 @@ const SignupPage = ({ onSignup }) => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <input
@@ -85,7 +99,7 @@ const SignupPage = ({ onSignup }) => {
                 disabled={loading}
                 className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
               >
-                {loading ? 'Creating account...' : 'Create Account'}
+                {loading ? "Creating account..." : "Create Account"}
               </button>
             </div>
           </div>
@@ -93,8 +107,11 @@ const SignupPage = ({ onSignup }) => {
 
         <div className="text-center">
           <p className="text-sm text-gray-600">
-            Already have an account?{' '}
-            <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            Already have an account?{" "}
+            <a
+              href="/login"
+              className="font-medium text-indigo-600 hover:text-indigo-500"
+            >
               Sign in
             </a>
           </p>

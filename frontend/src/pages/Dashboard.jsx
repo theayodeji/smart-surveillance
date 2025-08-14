@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Suspense, useCallback } from "react";
-import { X, Calendar as CalendarIcon, ChevronUp, ChevronDown } from "lucide-react";
+import { X, Calendar as CalendarIcon, ChevronUp, ChevronDown, Settings } from "lucide-react";
+import SettingsModal from "../components/SettingsModal";
 import EventList from "../components/dashboard/EventList";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -17,6 +18,7 @@ const Dashboard = ({ onLogout }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [showFilters, setShowFilters] = useState(true);
+  
   const [filters, setFilters] = useState({
     dateRange: {
       start: null,
@@ -30,6 +32,9 @@ const Dashboard = ({ onLogout }) => {
     showOnly: 'all' // 'all', 'withPeople', 'withVehicles'
   });
   const [filteredLogs, setFilteredLogs] = useState([]);
+  const [showSettings, setShowSettings] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // Memoize event handlers
   const handleResize = useCallback(() => {
@@ -39,6 +44,20 @@ const Dashboard = ({ onLogout }) => {
   useEffect(() => {
     fetchLogs();
     window.addEventListener('resize', handleResize);
+    
+    // Get user email from local storage or token
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload && payload.email) {
+          setUserEmail(payload.email);
+        }
+      } catch (error) {
+        console.error('Error parsing token:', error);
+      }
+    }
+    
     return () => window.removeEventListener('resize', handleResize);
   }, [handleResize]);
 
@@ -46,7 +65,7 @@ const Dashboard = ({ onLogout }) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("http://localhost:5000/api/events/logs");
+      const res = await fetch(`${API_URL}/api/events/logs`);
       if (!res.ok) throw new Error("Failed to fetch logs");
       const data = await res.json();
       setLogs(data);
@@ -60,7 +79,7 @@ const Dashboard = ({ onLogout }) => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this event?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/events/${id}`, {
+      const res = await fetch(`${API_URL}/api/events/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Failed to delete event");
@@ -259,12 +278,22 @@ const Dashboard = ({ onLogout }) => {
               Event Logs
             </h1>
             <div className="flex items-center gap-4">
-              <button
-                className="text-sm bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded whitespace-nowrap"
-                onClick={handleLogout}
-              >
-                Logout
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowSettings(true)}
+                  className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                  title="Settings"
+                >
+                  <Settings className="h-5 w-5" />
+                </button>
+                <button
+                  className="text-sm bg-green-500 text-white hover:bg-green-600 px-4 py-2 rounded whitespace-nowrap"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
           
@@ -509,6 +538,11 @@ const Dashboard = ({ onLogout }) => {
         </div>
       )}
     </div>
+      <SettingsModal 
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        userEmail={userEmail}
+      />
     </div>
   );
 };
